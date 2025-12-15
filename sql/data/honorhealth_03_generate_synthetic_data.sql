@@ -217,16 +217,48 @@ SELECT 'Providers: ' || COUNT(*) || ' rows inserted' AS status FROM PROVIDERS;
 -- ============================================================================
 -- Table 4: ENCOUNTERS (80,000 rows)
 -- ============================================================================
--- Create temp patient pool
-CREATE TEMPORARY TABLE temp_sdoh_patient_pool AS
-SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
-FROM SOCIAL_DETERMINANTS;
-
 INSERT INTO ENCOUNTERS
+WITH enc_generator AS (
+    SELECT 
+        ROW_NUMBER() OVER (ORDER BY SEQ4()) AS rn
+    FROM TABLE(GENERATOR(ROWCOUNT => 80000))
+),
+patient_assignments AS (
+    SELECT 
+        rn,
+        patient_id,
+        ROW_NUMBER() OVER (ORDER BY rn) AS patient_rn
+    FROM (
+        SELECT rn FROM enc_generator
+    ) e
+    CROSS JOIN (
+        SELECT patient_id,
+               ROW_NUMBER() OVER (ORDER BY RANDOM()) AS pool_rn
+        FROM SOCIAL_DETERMINANTS
+    ) p
+    WHERE e.rn = p.pool_rn
+),
+provider_assignments AS (
+    SELECT
+        rn,
+        provider_id,
+        ROW_NUMBER() OVER (ORDER BY rn) AS provider_rn
+    FROM (
+        SELECT rn FROM enc_generator
+    ) e
+    CROSS JOIN (
+        SELECT provider_id,
+               ROW_NUMBER() OVER (ORDER BY RANDOM()) AS pool_rn
+        FROM PROVIDERS
+        CROSS JOIN TABLE(GENERATOR(ROWCOUNT => 160))
+    ) pr
+    WHERE MOD(e.rn, 500) + 1 = MOD(pr.pool_rn, 500) + 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY rn ORDER BY RANDOM()) = 1
+)
 SELECT
-    'ENC' || LPAD(SEQ4()::VARCHAR, 8, '0') AS encounter_id,
-    (SELECT patient_id FROM temp_sdoh_patient_pool WHERE rn = ((SEQ4() % 40000) + 1)) AS patient_id,
-    (SELECT provider_id FROM PROVIDERS WHERE provider_id = 'PRV' || LPAD(((SEQ4() % 500) + 1)::VARCHAR, 5, '0')) AS provider_id,
+    'ENC' || LPAD(eg.rn::VARCHAR, 8, '0') AS encounter_id,
+    pa.patient_id,
+    pra.provider_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS encounter_date,
     CASE UNIFORM(1, 6, RANDOM())
         WHEN 1 THEN 'Primary Care Visit'
@@ -302,9 +334,9 @@ SELECT
     CASE WHEN UNIFORM(0, 100, RANDOM()) < 15 THEN TRUE ELSE FALSE END AS readmission_30_day,
     CASE WHEN encounter_type = 'Emergency Department' THEN TRUE ELSE FALSE END AS emergency_visit,
     CURRENT_TIMESTAMP() AS created_at
-FROM TABLE(GENERATOR(ROWCOUNT => 80000));
-
-DROP TABLE IF EXISTS temp_sdoh_patient_pool;
+FROM enc_generator eg
+JOIN patient_assignments pa ON eg.rn = pa.rn
+JOIN provider_assignments pra ON eg.rn = pra.rn;
 
 SELECT 'Encounters: ' || COUNT(*) || ' rows inserted' AS status FROM ENCOUNTERS;
 
