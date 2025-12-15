@@ -106,33 +106,17 @@ For complete question details, see [honorhealth_questions.md](docs/honorhealth_q
 
 ---
 
-##  File Structure
+## Architecture Diagrams
 
-```
-HonorHealth/
-├── README.md (this file)
-├── sql/
-│   ├── setup/
-│   │   ├── honorhealth_01_database_and_schema.sql
-│   │   └── honorhealth_02_create_tables.sql
-│   ├── data/
-│   │   └── honorhealth_03_generate_synthetic_data.sql
-│   ├── views/
-│   │   ├── honorhealth_04_create_views.sql
-│   │   └── honorhealth_05_create_semantic_views.sql
-│   ├── search/
-│   │   └── honorhealth_06_create_cortex_search.sql
-│   ├── ml/
-│   │   └── honorhealth_07_ml_model_functions.sql
-│   └── agent/
-│       └── honorhealth_08_intelligence_agent.sql
-├── notebooks/
-│   ├── environment.yml
-│   └── honorhealth_ml_models.ipynb
-└── docs/
-    ├── HONORHEALTH_SETUP_GUIDE.md
-    └── honorhealth_questions.md
-```
+### System Architecture
+<img src="docs/architecture_diagram.svg" width="800">
+
+*The Honor Health Intelligence Agent connects clinical users to structured data (via semantic views), ML predictions (via 3 models), and unstructured data (via Cortex Search), all powered by the Snowflake Data Platform.*
+
+### Setup Flow
+<img src="docs/setup_flow_diagram.svg" width="900">
+
+*Complete setup process from database creation to production-ready agent in 9 steps, taking approximately 45-60 minutes.*
 
 ---
 
