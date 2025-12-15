@@ -220,7 +220,7 @@ SELECT 'Providers: ' || COUNT(*) || ' rows inserted' AS status FROM PROVIDERS;
 INSERT INTO ENCOUNTERS
 SELECT
     'ENC' || LPAD(SEQ4()::VARCHAR, 8, '0') AS encounter_id,
-    (SELECT patient_id FROM PATIENTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS encounter_date,
     CASE UNIFORM(1, 6, RANDOM())
@@ -307,7 +307,7 @@ SELECT 'Encounters: ' || COUNT(*) || ' rows inserted' AS status FROM ENCOUNTERS;
 INSERT INTO QUALITY_METRICS
 SELECT
     'QM' || LPAD(SEQ4()::VARCHAR, 8, '0') AS metric_id,
-    (SELECT patient_id FROM PATIENTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS measurement_date,
     CASE UNIFORM(1, 15, RANDOM())
         WHEN 1 THEN 'CDC-D'    -- Diabetes Care
@@ -366,7 +366,7 @@ SELECT 'Quality Metrics: ' || COUNT(*) || ' rows inserted' AS status FROM QUALIT
 INSERT INTO HEALTH_OUTCOMES
 SELECT
     'OUT' || LPAD(SEQ4()::VARCHAR, 8, '0') AS outcome_id,
-    (SELECT patient_id FROM PATIENTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
     DATEADD(day, -UNIFORM(1, 180, RANDOM()), CURRENT_DATE()) AS outcome_date,
     CASE UNIFORM(1, 6, RANDOM())
         WHEN 1 THEN 'Clinical'
@@ -413,8 +413,8 @@ SELECT 'Health Outcomes: ' || COUNT(*) || ' rows inserted' AS status FROM HEALTH
 INSERT INTO CLINICAL_NOTES
 SELECT
     'NOTE' || LPAD(SEQ4()::VARCHAR, 8, '0') AS note_id,
-    (SELECT patient_id FROM PATIENTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
-    (SELECT encounter_id FROM ENCOUNTERS ORDER BY RANDOM() LIMIT 1) AS encounter_id,
+    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT encounter_id FROM ENCOUNTERS WHERE patient_id IN (SELECT patient_id FROM SOCIAL_DETERMINANTS) ORDER BY RANDOM() LIMIT 1) AS encounter_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS note_date,
     CASE UNIFORM(1, 8, RANDOM())
@@ -468,7 +468,7 @@ SELECT 'Clinical Notes: ' || COUNT(*) || ' rows inserted' AS status FROM CLINICA
 INSERT INTO CARE_PLANS
 SELECT
     'CP' || LPAD(SEQ4()::VARCHAR, 8, '0') AS care_plan_id,
-    (SELECT patient_id FROM PATIENTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(30, 180, RANDOM()), CURRENT_DATE()) AS plan_start_date,
     DATEADD(day, UNIFORM(90, 365, RANDOM()), plan_start_date) AS plan_end_date,
