@@ -186,7 +186,6 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     encounters.total_encounters AS COUNT(DISTINCT encounters.encounter_id),
     encounters.total_cost AS SUM(encounters.encounter_cost),
     encounters.avg_cost_per_encounter AS AVG(encounters.encounter_cost),
-    encounters.cost_per_patient AS (SUM(encounters.encounter_cost)::FLOAT / NULLIF(COUNT(DISTINCT patients.patient_id), 0)),
     encounters.readmission_count AS COUNT_IF(encounters.readmission_30_day),
     encounters.readmission_rate AS (COUNT_IF(encounters.readmission_30_day)::FLOAT / NULLIF(COUNT(*), 0)),
     encounters.ed_utilization_rate AS (COUNT_IF(encounters.emergency_visit)::FLOAT / NULLIF(COUNT(*), 0)),
@@ -195,11 +194,11 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     quality_metrics.quality_compliance_rate AS (COUNT_IF(quality_metrics.met_target)::FLOAT / NULLIF(COUNT(*), 0)),
     quality_metrics.total_gaps_in_care AS COUNT_IF(quality_metrics.gaps_in_care),
     quality_metrics.total_quality_points AS SUM(quality_metrics.quality_points),
-    quality_metrics.avg_quality_points_per_patient AS (SUM(quality_metrics.quality_points)::FLOAT / NULLIF(COUNT(DISTINCT patients.patient_id), 0)),
+    quality_metrics.avg_quality_points AS AVG(quality_metrics.quality_points),
     care_plans.total_care_plans AS COUNT(DISTINCT care_plans.care_plan_id),
     care_plans.active_care_plans AS COUNT_IF(care_plans.plan_status = 'Active'),
     care_plans.avg_adherence_score AS AVG(care_plans.adherence_score),
-    care_plans.care_plans_per_patient AS (COUNT(DISTINCT care_plans.care_plan_id)::FLOAT / NULLIF(COUNT(DISTINCT patients.patient_id), 0))
+    care_plans.total_care_plans_count AS COUNT(DISTINCT care_plans.care_plan_id)
   )
   COMMENT = 'Semantic view for value-based care performance, quality metrics, and provider performance';
 
