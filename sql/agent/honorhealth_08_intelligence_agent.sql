@@ -52,15 +52,15 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
       - question: "What is the trend in emergency department utilization by insurance type?"
         answer: "I'll analyze ED visit rates over time segmented by insurance type to identify trends."
       - question: "Predict readmission risk for patients currently in the hospital"
-        answer: "I'll use the readmission risk prediction model to analyze current inpatient encounters and provide risk distribution."
+        answer: "I'll use PredictReadmissionRisk with encounter_type_filter NULL to analyze all current encounters and provide risk distribution."
       - question: "Which patients are most likely to show health outcome improvement?"
-        answer: "I'll use the health outcome predictor to identify patients with high likelihood of improvement."
+        answer: "I'll use PredictHealthOutcomes with risk_level_filter NULL to identify patients with high likelihood of improvement."
       - question: "Identify patients with high social risk who need intervention"
-        answer: "I'll use the social risk stratification model to identify high-risk patients requiring SDOH interventions."
+        answer: "I'll use StratifySocialRisk with days_back 365 to identify high-risk patients requiring SDOH interventions."
       - question: "What is the predicted readmission rate for diabetic patients?"
-        answer: "I'll filter for diabetes patients and use the readmission predictor to forecast readmission risk."
+        answer: "I'll use PatientHealthOutcomesAnalyst to identify diabetic patients, then use PredictReadmissionRisk to forecast their readmission risk."
       - question: "Show me patients with declining health outcomes despite active care plans"
-        answer: "I'll combine outcome predictions with care plan data to identify patients who may need care plan adjustments."
+        answer: "I'll use PredictHealthOutcomes to identify declining outcomes, then query ValueBasedCareAnalyst for care plan adherence data."
 
   tools:
     # Semantic Views for Cortex Analyst (Text-to-SQL)
