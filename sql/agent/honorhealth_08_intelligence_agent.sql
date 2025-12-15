@@ -164,13 +164,28 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
 
     # ML Model Function Resources
     PredictReadmissionRisk:
-      function: "HONORHEALTH_INTELLIGENCE.ML_MODELS.PREDICT_READMISSION_RISK"
+      type: "function"
+      identifier: "HONORHEALTH_INTELLIGENCE.ML_MODELS.PREDICT_READMISSION_RISK"
+      execution_environment:
+        type: "warehouse"
+        warehouse: "HONORHEALTH_WH"
+        query_timeout: 60
 
     PredictHealthOutcomes:
-      function: "HONORHEALTH_INTELLIGENCE.ML_MODELS.PREDICT_HEALTH_OUTCOMES"
+      type: "function"
+      identifier: "HONORHEALTH_INTELLIGENCE.ML_MODELS.PREDICT_HEALTH_OUTCOMES"
+      execution_environment:
+        type: "warehouse"
+        warehouse: "HONORHEALTH_WH"
+        query_timeout: 60
 
     StratifySocialRisk:
-      function: "HONORHEALTH_INTELLIGENCE.ML_MODELS.STRATIFY_SOCIAL_RISK"
+      type: "function"
+      identifier: "HONORHEALTH_INTELLIGENCE.ML_MODELS.STRATIFY_SOCIAL_RISK"
+      execution_environment:
+        type: "warehouse"
+        warehouse: "HONORHEALTH_WH"
+        query_timeout: 60
   $$;
 
 -- ============================================================================
