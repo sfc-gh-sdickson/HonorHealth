@@ -51,3 +51,9 @@ temp_*.ipynb
 .env
 .env.local
 
+# Documentation - ignore all .md files except these three
+*.md
+!README.md
+!docs/HONORHEALTH_SETUP_GUIDE.md
+!docs/honorhealth_questions.md
+
