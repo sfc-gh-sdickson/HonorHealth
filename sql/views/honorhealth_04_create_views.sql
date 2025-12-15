@@ -217,15 +217,17 @@ SELECT
     COALESCE(sd.sdoh_risk_score, 0)::FLOAT AS sdoh_risk_score,
     CASE WHEN sd.food_insecurity THEN 1 ELSE 0 END::FLOAT AS has_food_insecurity,
     CASE WHEN sd.transportation_barriers THEN 1 ELSE 0 END::FLOAT AS has_transport_barriers,
-    (SELECT COUNT(*) FROM RAW.ENCOUNTERS e2 
-     WHERE e2.patient_id = e.patient_id 
-     AND e2.encounter_date < e.encounter_date)::FLOAT AS prior_encounter_count,
-    COALESCE((SELECT AVG(quality_points) FROM RAW.QUALITY_METRICS qm 
-              WHERE qm.patient_id = e.patient_id), 0)::FLOAT AS avg_quality_score,
+    0::FLOAT AS prior_encounter_count,
+    COALESCE(qm_agg.avg_quality_points, 0)::FLOAT AS avg_quality_score,
     e.readmission_30_day::INT AS readmission_label
 FROM RAW.ENCOUNTERS e
 JOIN RAW.PATIENTS p ON e.patient_id = p.patient_id
 LEFT JOIN RAW.SOCIAL_DETERMINANTS sd ON e.patient_id = sd.patient_id
+LEFT JOIN (
+    SELECT patient_id, AVG(quality_points) AS avg_quality_points
+    FROM RAW.QUALITY_METRICS
+    GROUP BY patient_id
+) qm_agg ON e.patient_id = qm_agg.patient_id
 WHERE e.encounter_type IN ('Inpatient Admission', 'Emergency Department');
 
 -- ============================================================================
@@ -270,7 +272,19 @@ SELECT
     END::INT AS outcome_label
 FROM RAW.HEALTH_OUTCOMES ho
 JOIN RAW.PATIENTS p ON ho.patient_id = p.patient_id
-LEFT JOIN RAW.SOCIAL_DETERMINANTS sd ON ho.patient_id = sd.patient_id;
+LEFT JOIN RAW.SOCIAL_DETERMINANTS sd ON ho.patient_id = sd.patient_id
+LEFT JOIN (
+    SELECT patient_id, 
+           COUNT(DISTINCT encounter_id) AS prior_encounters,
+           SUM(encounter_cost) AS cumulative_cost
+    FROM RAW.ENCOUNTERS
+    GROUP BY patient_id
+) enc_agg ON ho.patient_id = enc_agg.patient_id
+LEFT JOIN (
+    SELECT patient_id, AVG(quality_points) AS avg_quality_points
+    FROM RAW.QUALITY_METRICS
+    GROUP BY patient_id
+) qm_agg ON ho.patient_id = qm_agg.patient_id;
 
 -- ============================================================================
 -- ML Feature View 3: V_SOCIAL_RISK_STRATIFICATION_FEATURES
@@ -327,17 +341,22 @@ SELECT
         ELSE 0
     END::FLOAT AS financial_strain_level,
     CASE WHEN sd.utility_assistance_needed THEN 1 ELSE 0 END::FLOAT AS utility_need_flag,
-    COALESCE((SELECT COUNT(*) FROM RAW.ENCOUNTERS e 
-              WHERE e.patient_id = sd.patient_id), 0)::FLOAT AS encounter_count,
-    COALESCE((SELECT SUM(encounter_cost) FROM RAW.ENCOUNTERS e 
-              WHERE e.patient_id = sd.patient_id), 0)::FLOAT AS total_healthcare_cost,
+    COALESCE(enc_agg.encounter_count, 0)::FLOAT AS encounter_count,
+    COALESCE(enc_agg.total_healthcare_cost, 0)::FLOAT AS total_healthcare_cost,
     CASE 
         WHEN sd.sdoh_risk_score >= 70 THEN 2  -- High Risk
         WHEN sd.sdoh_risk_score >= 40 THEN 1  -- Medium Risk
         ELSE 0  -- Low Risk
     END::INT AS risk_level_label
 FROM RAW.SOCIAL_DETERMINANTS sd
-JOIN RAW.PATIENTS p ON sd.patient_id = p.patient_id;
+JOIN RAW.PATIENTS p ON sd.patient_id = p.patient_id
+LEFT JOIN (
+    SELECT patient_id, 
+           COUNT(*) AS encounter_count,
+           SUM(encounter_cost) AS total_healthcare_cost
+    FROM RAW.ENCOUNTERS
+    GROUP BY patient_id
+) enc_agg ON sd.patient_id = enc_agg.patient_id;
 
 -- ============================================================================
 -- Verification
