@@ -45,13 +45,13 @@ CREATE OR REPLACE SEMANTIC VIEW SV_PATIENT_HEALTH_OUTCOMES
     patients.state AS patients.state,
     encounters.encounter_type AS encounters.encounter_type,
     encounters.visit_reason AS encounters.visit_reason,
-    encounters.primary_diagnosis_code AS encounters.diagnosis_code,
+    encounters.primary_diagnosis_code AS encounters.primary_diagnosis_code,
     encounters.chronic_conditions AS encounters.chronic_conditions,
     quality_metrics.measure_category AS quality_metrics.measure_category,
-    quality_metrics.hedis_measure_code AS quality_metrics.hedis_code,
+    quality_metrics.hedis_measure_code AS quality_metrics.hedis_measure_code,
     quality_metrics.measure_name AS quality_metrics.measure_name,
     health_outcomes.outcome_type AS health_outcomes.outcome_type,
-    health_outcomes.risk_stratification AS health_outcomes.risk_level
+    health_outcomes.risk_stratification AS health_outcomes.risk_stratification
   )
   METRICS (
     patients.total_patients AS COUNT(DISTINCT patients.patient_id),
@@ -110,10 +110,10 @@ CREATE OR REPLACE SEMANTIC VIEW SV_SOCIAL_DETERMINANTS
     patients.insurance_type AS patients.insurance_type,
     patients.county AS patients.county,
     sdoh.employment_status AS sdoh.employment_status,
-    sdoh.annual_income_range AS sdoh.income_range,
+    sdoh.annual_income_range AS sdoh.annual_income_range,
     sdoh.education_level AS sdoh.education_level,
     sdoh.housing_status AS sdoh.housing_status,
-    sdoh.social_isolation_risk AS sdoh.isolation_risk,
+    sdoh.social_isolation_risk AS sdoh.social_isolation_risk,
     sdoh.financial_strain AS sdoh.financial_strain,
     sdoh.neighborhood_safety AS sdoh.neighborhood_safety,
     care_plans.plan_type AS care_plans.plan_type,
@@ -173,7 +173,7 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     patients.county AS patients.county,
     encounters.encounter_type AS encounters.encounter_type,
     quality_metrics.measure_category AS quality_metrics.measure_category,
-    quality_metrics.hedis_measure_code AS quality_metrics.hedis_code,
+    quality_metrics.hedis_measure_code AS quality_metrics.hedis_measure_code,
     care_plans.plan_type AS care_plans.plan_type,
     care_plans.plan_status AS care_plans.plan_status
   )
