@@ -167,7 +167,7 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     providers.provider_type AS providers.provider_type,
     providers.specialty AS providers.specialty,
     providers.facility_name AS providers.facility_name,
-    providers.active_status AS providers.status,
+    providers.active_status AS providers.active_status,
     patients.insurance_type AS patients.insurance_type,
     patients.patient_tier AS patients.patient_tier,
     patients.county AS patients.county,
