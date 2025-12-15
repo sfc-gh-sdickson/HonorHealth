@@ -97,7 +97,7 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
 
     # ML Model Functions
     - tool_spec:
-        type: "function"
+        type: "generic"
         name: "PredictReadmissionRisk"
         description: "Predicts 30-day hospital readmission risk for patients. Returns distribution of low risk vs high risk patients. Use when users ask to predict readmissions, assess readmission risk, or identify high-risk patients. Input: encounter type filter (Inpatient Admission, Emergency Department) or NULL for all encounters."
         input_schema:
@@ -109,7 +109,7 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
           required: []
 
     - tool_spec:
-        type: "function"
+        type: "generic"
         name: "PredictHealthOutcomes"
         description: "Predicts patient health outcome trajectory (declined, stable, or improved). Returns distribution of outcome predictions. Use when users ask about health outcome predictions, patient improvement likelihood, or outcome forecasts. Input: risk level filter or NULL."
         input_schema:
@@ -121,7 +121,7 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
           required: []
 
     - tool_spec:
-        type: "function"
+        type: "generic"
         name: "StratifySocialRisk"
         description: "Stratifies patients by social risk level (low, medium, high) based on SDOH factors. Returns distribution of risk levels. Use when users ask about social risk stratification, SDOH impact, or identifying patients needing social support. Input: number of days to analyze (default 365)."
         input_schema:
