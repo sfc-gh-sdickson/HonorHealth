@@ -237,30 +237,30 @@ SELECT
     p.age::FLOAT AS age,
     CASE p.gender WHEN 'Male' THEN 1 WHEN 'Female' THEN 0 ELSE 0.5 END::FLOAT AS gender_encoded,
     COALESCE(sd.sdoh_risk_score, 0)::FLOAT AS sdoh_risk_score,
-    CASE sd.employment_status
+    COALESCE(CASE sd.employment_status
         WHEN 'Full-time Employed' THEN 1
         WHEN 'Part-time Employed' THEN 2
         WHEN 'Unemployed' THEN 3
         WHEN 'Retired' THEN 4
         WHEN 'Disabled' THEN 5
         ELSE 0
-    END::FLOAT AS employment_encoded,
-    CASE sd.housing_status
+    END, 0)::FLOAT AS employment_encoded,
+    COALESCE(CASE sd.housing_status
         WHEN 'Owned' THEN 1
         WHEN 'Rented' THEN 2
         WHEN 'Temporary Housing' THEN 3
         WHEN 'Homeless' THEN 4
         ELSE 0
-    END::FLOAT AS housing_encoded,
-    CASE WHEN sd.food_insecurity THEN 1 ELSE 0 END::FLOAT AS food_insecurity_flag,
-    CASE WHEN sd.transportation_barriers THEN 1 ELSE 0 END::FLOAT AS transport_barrier_flag,
-    ho.baseline_value::FLOAT AS baseline_value,
-    (SELECT COUNT(DISTINCT encounter_id) FROM RAW.ENCOUNTERS e 
+    END, 0)::FLOAT AS housing_encoded,
+    COALESCE(CASE WHEN sd.food_insecurity THEN 1 ELSE 0 END, 0)::FLOAT AS food_insecurity_flag,
+    COALESCE(CASE WHEN sd.transportation_barriers THEN 1 ELSE 0 END, 0)::FLOAT AS transport_barrier_flag,
+    COALESCE(ho.baseline_value, 0)::FLOAT AS baseline_value,
+    COALESCE((SELECT COUNT(DISTINCT encounter_id) FROM RAW.ENCOUNTERS e 
      WHERE e.patient_id = ho.patient_id 
-     AND e.encounter_date < ho.outcome_date)::FLOAT AS prior_encounters,
-    (SELECT SUM(encounter_cost) FROM RAW.ENCOUNTERS e 
+     AND e.encounter_date < ho.outcome_date), 0)::FLOAT AS prior_encounters,
+    COALESCE((SELECT SUM(encounter_cost) FROM RAW.ENCOUNTERS e 
      WHERE e.patient_id = ho.patient_id 
-     AND e.encounter_date < ho.outcome_date)::FLOAT AS cumulative_cost,
+     AND e.encounter_date < ho.outcome_date), 0)::FLOAT AS cumulative_cost,
     COALESCE((SELECT AVG(quality_points) FROM RAW.QUALITY_METRICS qm 
               WHERE qm.patient_id = ho.patient_id), 0)::FLOAT AS quality_score,
     CASE 
