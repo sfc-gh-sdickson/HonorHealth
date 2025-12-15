@@ -72,9 +72,9 @@ This document provides 15 sample questions (5 simple, 5 complex, 5 ML-based) for
 **Expected**: Readmission risk prediction filtered for diabetes patients, showing risk distribution  
 **Uses**: PredictReadmissionRisk ML function + clinical notes search for diabetes cases
 
-### 15. Show me patients with declining health outcomes despite active care plans
-**Expected**: Combined analysis using outcome predictor and care plan data to identify patients needing intervention  
-**Uses**: PredictHealthOutcomes ML function + SV_VALUE_BASED_CARE semantic view
+### 15. What are the care plan adherence rates for patients with high social risk?
+**Expected**: Analysis of care plan adherence scores segmented by SDOH risk levels  
+**Uses**: SV_SOCIAL_DETERMINANTS semantic view (has both care_plans and sdoh tables)
 
 ---
 
