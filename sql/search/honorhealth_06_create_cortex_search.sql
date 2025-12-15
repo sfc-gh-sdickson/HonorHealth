@@ -25,6 +25,7 @@ CREATE OR REPLACE CORTEX SEARCH SERVICE CLINICAL_NOTES_SEARCH
   ATTRIBUTES patient_id, encounter_id, provider_id, note_type, clinical_category, urgency_level
   WAREHOUSE = HONORHEALTH_WH
   TARGET_LAG = '1 hour'
+  INITIALIZE = ON_SCHEDULE
   COMMENT = 'Semantic search over clinical notes and documentation'
 AS
   SELECT
@@ -49,6 +50,7 @@ CREATE OR REPLACE CORTEX SEARCH SERVICE CARE_PLANS_SEARCH
   ATTRIBUTES patient_id, provider_id, plan_type, plan_status
   WAREHOUSE = HONORHEALTH_WH
   TARGET_LAG = '1 hour'
+  INITIALIZE = ON_SCHEDULE
   COMMENT = 'Search over care plans, treatment protocols, and SDOH interventions'
 AS
   SELECT
@@ -75,6 +77,7 @@ CREATE OR REPLACE CORTEX SEARCH SERVICE HEALTH_POLICIES_SEARCH
   ATTRIBUTES policy_category, policy_type, applies_to_conditions, keywords
   WAREHOUSE = HONORHEALTH_WH
   TARGET_LAG = '1 day'
+  INITIALIZE = ON_SCHEDULE
   COMMENT = 'Search clinical policies, guidelines, and care protocols'
 AS
   SELECT
