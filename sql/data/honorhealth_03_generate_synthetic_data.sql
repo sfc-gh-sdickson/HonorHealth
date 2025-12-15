@@ -218,9 +218,13 @@ SELECT 'Providers: ' || COUNT(*) || ' rows inserted' AS status FROM PROVIDERS;
 -- Table 4: ENCOUNTERS (80,000 rows)
 -- ============================================================================
 INSERT INTO ENCOUNTERS
+WITH sdoh_patients AS (
+    SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM SOCIAL_DETERMINANTS
+)
 SELECT
     'ENC' || LPAD(SEQ4()::VARCHAR, 8, '0') AS encounter_id,
-    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM sdoh_patients WHERE rn = MOD(SEQ4(), 40000) + 1) AS patient_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS encounter_date,
     CASE UNIFORM(1, 6, RANDOM())
@@ -305,9 +309,13 @@ SELECT 'Encounters: ' || COUNT(*) || ' rows inserted' AS status FROM ENCOUNTERS;
 -- Table 5: QUALITY_METRICS (60,000 rows)
 -- ============================================================================
 INSERT INTO QUALITY_METRICS
+WITH sdoh_patients AS (
+    SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM SOCIAL_DETERMINANTS
+)
 SELECT
     'QM' || LPAD(SEQ4()::VARCHAR, 8, '0') AS metric_id,
-    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM sdoh_patients WHERE rn = MOD(SEQ4(), 40000) + 1) AS patient_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS measurement_date,
     CASE UNIFORM(1, 15, RANDOM())
         WHEN 1 THEN 'CDC-D'    -- Diabetes Care
@@ -364,9 +372,13 @@ SELECT 'Quality Metrics: ' || COUNT(*) || ' rows inserted' AS status FROM QUALIT
 -- Table 6: HEALTH_OUTCOMES (50,000 rows)
 -- ============================================================================
 INSERT INTO HEALTH_OUTCOMES
+WITH sdoh_patients AS (
+    SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM SOCIAL_DETERMINANTS
+)
 SELECT
     'OUT' || LPAD(SEQ4()::VARCHAR, 8, '0') AS outcome_id,
-    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM sdoh_patients WHERE rn = MOD(SEQ4(), 40000) + 1) AS patient_id,
     DATEADD(day, -UNIFORM(1, 180, RANDOM()), CURRENT_DATE()) AS outcome_date,
     CASE UNIFORM(1, 6, RANDOM())
         WHEN 1 THEN 'Clinical'
@@ -411,10 +423,18 @@ SELECT 'Health Outcomes: ' || COUNT(*) || ' rows inserted' AS status FROM HEALTH
 -- Table 7: CLINICAL_NOTES (30,000 rows)
 -- ============================================================================
 INSERT INTO CLINICAL_NOTES
+WITH sdoh_patients AS (
+    SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM SOCIAL_DETERMINANTS
+),
+enc_pool AS (
+    SELECT encounter_id, patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM ENCOUNTERS
+)
 SELECT
     'NOTE' || LPAD(SEQ4()::VARCHAR, 8, '0') AS note_id,
-    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
-    (SELECT encounter_id FROM ENCOUNTERS WHERE patient_id IN (SELECT patient_id FROM SOCIAL_DETERMINANTS) ORDER BY RANDOM() LIMIT 1) AS encounter_id,
+    (SELECT patient_id FROM sdoh_patients WHERE rn = MOD(SEQ4(), 40000) + 1) AS patient_id,
+    (SELECT encounter_id FROM enc_pool WHERE rn = MOD(SEQ4(), 80000) + 1) AS encounter_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(1, 365, RANDOM()), CURRENT_DATE()) AS note_date,
     CASE UNIFORM(1, 8, RANDOM())
@@ -466,9 +486,13 @@ SELECT 'Clinical Notes: ' || COUNT(*) || ' rows inserted' AS status FROM CLINICA
 -- Table 8: CARE_PLANS (25,000 rows)
 -- ============================================================================
 INSERT INTO CARE_PLANS
+WITH sdoh_patients AS (
+    SELECT patient_id, ROW_NUMBER() OVER (ORDER BY RANDOM()) AS rn
+    FROM SOCIAL_DETERMINANTS
+)
 SELECT
     'CP' || LPAD(SEQ4()::VARCHAR, 8, '0') AS care_plan_id,
-    (SELECT patient_id FROM SOCIAL_DETERMINANTS ORDER BY RANDOM() LIMIT 1) AS patient_id,
+    (SELECT patient_id FROM sdoh_patients WHERE rn = MOD(SEQ4(), 40000) + 1) AS patient_id,
     (SELECT provider_id FROM PROVIDERS ORDER BY RANDOM() LIMIT 1) AS provider_id,
     DATEADD(day, -UNIFORM(30, 180, RANDOM()), CURRENT_DATE()) AS plan_start_date,
     DATEADD(day, UNIFORM(90, 365, RANDOM()), plan_start_date) AS plan_end_date,
