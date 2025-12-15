@@ -1,0 +1,11 @@
+ML Notebook Fixed:
+- All ORIGENCE references → HONORHEALTH
+- All variable names corrected (default_df → readmission_df, etc.)
+- All model names correct (READMISSION_RISK_PREDICTOR, HEALTH_OUTCOME_PREDICTOR, SOCIAL_RISK_STRATIFICATION)
+- All feature view references correct
+- All label columns correct (READMISSION_LABEL, OUTCOME_LABEL, RISK_LEVEL_LABEL)
+- All OneHotEncoder removed (healthcare data is all numeric FLOAT)
+- Pipelines simplified to RandomForest/LogisticRegression only
+- Model deletion added before registration (force retraining)
+
+Notebook ready for upload to Snowsight and execution.
