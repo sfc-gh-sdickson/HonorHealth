@@ -14,10 +14,10 @@ USE WAREHOUSE HONORHEALTH_WH;
 -- Function 1: Predict Readmission Risk
 -- ============================================================================
 -- Returns: Summary string with readmission risk distribution
--- Input: encounter_type_filter (Inpatient Admission, Emergency Department, or NULL)
+-- Input: None (analyzes all encounter types)
 -- Analyzes 25 encounters
 
-CREATE OR REPLACE FUNCTION PREDICT_READMISSION_RISK(encounter_type_filter VARCHAR)
+CREATE OR REPLACE FUNCTION PREDICT_READMISSION_RISK()
 RETURNS VARCHAR
 AS
 $$
@@ -35,7 +35,6 @@ $$
                 avg_quality_score
             ) as pred
         FROM HONORHEALTH_INTELLIGENCE.ANALYTICS.V_READMISSION_RISK_FEATURES
-        WHERE encounter_type_filter IS NULL OR encounter_type_risk = encounter_type_filter
         LIMIT 25
     )
 $$;
@@ -44,10 +43,10 @@ $$;
 -- Function 2: Predict Health Outcomes
 -- ============================================================================
 -- Returns: Summary string with health outcome predictions
--- Input: risk_level_filter (Low Risk, Medium Risk, High Risk, or NULL)
+-- Input: None (analyzes all patients)
 -- Analyzes 25 patients
 
-CREATE OR REPLACE FUNCTION PREDICT_HEALTH_OUTCOMES(risk_level_filter VARCHAR)
+CREATE OR REPLACE FUNCTION PREDICT_HEALTH_OUTCOMES()
 RETURNS VARCHAR
 AS
 $$
@@ -73,10 +72,10 @@ $$;
 -- Function 3: Stratify Social Risk
 -- ============================================================================
 -- Returns: Summary string with social risk stratification
--- Input: days_back (number of days to analyze, default 365)
+-- Input: None (analyzes all time periods)
 -- Analyzes 25 patients
 
-CREATE OR REPLACE FUNCTION STRATIFY_SOCIAL_RISK(days_back NUMBER)
+CREATE OR REPLACE FUNCTION STRATIFY_SOCIAL_RISK()
 RETURNS VARCHAR
 AS
 $$
@@ -104,9 +103,9 @@ $$;
 -- ============================================================================
 SELECT '🔄 Testing ML functions...' as status;
 
-SELECT PREDICT_READMISSION_RISK(NULL) as readmission_risk_result;
-SELECT PREDICT_HEALTH_OUTCOMES(NULL) as health_outcome_result;
-SELECT STRATIFY_SOCIAL_RISK(365) as social_risk_result;
+SELECT PREDICT_READMISSION_RISK() as readmission_risk_result;
+SELECT PREDICT_HEALTH_OUTCOMES() as health_outcome_result;
+SELECT STRATIFY_SOCIAL_RISK() as social_risk_result;
 
 SELECT '✅ All ML functions created and tested successfully!' as final_status;
 

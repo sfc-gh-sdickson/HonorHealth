@@ -52,11 +52,11 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
       - question: "What is the trend in emergency department utilization by insurance type?"
         answer: "I'll analyze ED visit rates over time segmented by insurance type to identify trends."
       - question: "Predict readmission risk for patients currently in the hospital"
-        answer: "I'll use PredictReadmissionRisk with encounter_type_filter NULL to analyze all current encounters and provide risk distribution."
+        answer: "I'll use PredictReadmissionRisk to analyze encounters and provide risk distribution."
       - question: "Which patients are most likely to show health outcome improvement?"
-        answer: "I'll use PredictHealthOutcomes with risk_level_filter NULL to identify patients with high likelihood of improvement."
+        answer: "I'll use PredictHealthOutcomes to identify patients with high likelihood of improvement."
       - question: "Identify patients with high social risk who need intervention"
-        answer: "I'll use StratifySocialRisk with days_back 365 to identify high-risk patients requiring SDOH interventions."
+        answer: "I'll use StratifySocialRisk to identify high-risk patients requiring SDOH interventions."
       - question: "What is the predicted readmission rate for diabetic patients?"
         answer: "I'll use PatientHealthOutcomesAnalyst to identify diabetic patients, then use PredictReadmissionRisk to forecast their readmission risk."
       - question: "Show me patients with declining health outcomes despite active care plans"
@@ -99,38 +99,17 @@ CREATE OR REPLACE AGENT HONORHEALTH_CARE_AGENT
     - tool_spec:
         type: "generic"
         name: "PredictReadmissionRisk"
-        description: "Predicts 30-day hospital readmission risk for patients. Returns distribution of low risk vs high risk patients. Use when users ask to predict readmissions, assess readmission risk, or identify high-risk patients. Input: encounter type filter (Inpatient Admission, Emergency Department) or NULL for all encounters."
-        input_schema:
-          type: "object"
-          properties:
-            encounter_type_filter:
-              type: "string"
-              description: "Filter by encounter type: Inpatient Admission, Emergency Department, or NULL for all"
-          required: []
+        description: "Predicts 30-day hospital readmission risk for patients. Returns distribution of low risk vs high risk patients. Use when users ask to predict readmissions, assess readmission risk, or identify high-risk patients. No parameters required - analyzes sample of all encounters."
 
     - tool_spec:
         type: "generic"
         name: "PredictHealthOutcomes"
-        description: "Predicts patient health outcome trajectory (declined, stable, or improved). Returns distribution of outcome predictions. Use when users ask about health outcome predictions, patient improvement likelihood, or outcome forecasts. Input: risk level filter or NULL."
-        input_schema:
-          type: "object"
-          properties:
-            risk_level_filter:
-              type: "string"
-              description: "Filter by risk level: Low Risk, Medium Risk, High Risk, or NULL for all"
-          required: []
+        description: "Predicts patient health outcome trajectory (declined, stable, or improved). Returns distribution of outcome predictions. Use when users ask about health outcome predictions, patient improvement likelihood, or outcome forecasts. No parameters required - analyzes sample of all patients."
 
     - tool_spec:
         type: "generic"
         name: "StratifySocialRisk"
-        description: "Stratifies patients by social risk level (low, medium, high) based on SDOH factors. Returns distribution of risk levels. Use when users ask about social risk stratification, SDOH impact, or identifying patients needing social support. Input: number of days to analyze (default 365)."
-        input_schema:
-          type: "object"
-          properties:
-            days_back:
-              type: "number"
-              description: "Number of days to analyze (default 365)"
-          required: []
+        description: "Stratifies patients by social risk level (low, medium, high) based on SDOH factors. Returns distribution of risk levels. Use when users ask about social risk stratification, SDOH impact, or identifying patients needing social support. No parameters required - analyzes sample of all patients."
 
   tool_resources:
     # Semantic View Resources
