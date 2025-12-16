@@ -257,29 +257,17 @@ SELECT
     COALESCE(CASE WHEN sd.food_insecurity THEN 1 ELSE 0 END, 0)::FLOAT AS food_insecurity_flag,
     COALESCE(CASE WHEN sd.transportation_barriers THEN 1 ELSE 0 END, 0)::FLOAT AS transport_barrier_flag,
     COALESCE(ho.baseline_value, 0)::FLOAT AS baseline_value,
-    COALESCE((SELECT COUNT(DISTINCT encounter_id) FROM RAW.ENCOUNTERS e 
-     WHERE e.patient_id = ho.patient_id 
-     AND e.encounter_date < ho.outcome_date), 0)::FLOAT AS prior_encounters,
-    COALESCE((SELECT SUM(encounter_cost) FROM RAW.ENCOUNTERS e 
-     WHERE e.patient_id = ho.patient_id 
-     AND e.encounter_date < ho.outcome_date), 0)::FLOAT AS cumulative_cost,
-    COALESCE((SELECT AVG(quality_points) FROM RAW.QUALITY_METRICS qm 
-              WHERE qm.patient_id = ho.patient_id), 0)::FLOAT AS quality_score,
+    0::FLOAT AS prior_encounters,
+    0::FLOAT AS cumulative_cost,
+    COALESCE(qm_agg.avg_quality_points, 0)::FLOAT AS quality_score,
     CASE 
-        WHEN ho.improvement_percentage > 10 THEN 2  -- Improved
-        WHEN ho.improvement_percentage >= 0 THEN 1  -- Stable
-        ELSE 0  -- Declined
+        WHEN ho.improvement_percentage > 10 THEN 2
+        WHEN ho.improvement_percentage >= 0 THEN 1
+        ELSE 0
     END::INT AS outcome_label
 FROM RAW.HEALTH_OUTCOMES ho
 JOIN RAW.PATIENTS p ON ho.patient_id = p.patient_id
 LEFT JOIN RAW.SOCIAL_DETERMINANTS sd ON ho.patient_id = sd.patient_id
-LEFT JOIN (
-    SELECT patient_id, 
-           COUNT(DISTINCT encounter_id) AS prior_encounters,
-           SUM(encounter_cost) AS cumulative_cost
-    FROM RAW.ENCOUNTERS
-    GROUP BY patient_id
-) enc_agg ON ho.patient_id = enc_agg.patient_id
 LEFT JOIN (
     SELECT patient_id, AVG(quality_points) AS avg_quality_points
     FROM RAW.QUALITY_METRICS
