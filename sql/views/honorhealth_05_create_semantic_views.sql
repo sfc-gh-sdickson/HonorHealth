@@ -153,14 +153,17 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     quality_metrics AS HONORHEALTH_INTELLIGENCE.RAW.QUALITY_METRICS
       PRIMARY KEY (metric_id),
     care_plans AS HONORHEALTH_INTELLIGENCE.RAW.CARE_PLANS
-      PRIMARY KEY (care_plan_id)
+      PRIMARY KEY (care_plan_id),
+    health_outcomes AS HONORHEALTH_INTELLIGENCE.RAW.HEALTH_OUTCOMES
+      PRIMARY KEY (outcome_id)
   )
   RELATIONSHIPS (
     encounters(patient_id) REFERENCES patients(patient_id),
     encounters(provider_id) REFERENCES providers(provider_id),
     quality_metrics(patient_id) REFERENCES patients(patient_id),
     care_plans(patient_id) REFERENCES patients(patient_id),
-    care_plans(provider_id) REFERENCES providers(provider_id)
+    care_plans(provider_id) REFERENCES providers(provider_id),
+    health_outcomes(patient_id) REFERENCES patients(patient_id)
   )
   DIMENSIONS (
     providers.provider_name AS providers.provider_name,
@@ -198,9 +201,12 @@ CREATE OR REPLACE SEMANTIC VIEW SV_VALUE_BASED_CARE
     care_plans.total_care_plans AS COUNT(DISTINCT care_plans.care_plan_id),
     care_plans.active_care_plans AS COUNT_IF(care_plans.plan_status = 'Active'),
     care_plans.avg_adherence_score AS AVG(care_plans.adherence_score),
-    care_plans.total_care_plans_count AS COUNT(DISTINCT care_plans.care_plan_id)
+    care_plans.total_care_plans_count AS COUNT(DISTINCT care_plans.care_plan_id),
+    health_outcomes.total_outcomes AS COUNT(DISTINCT health_outcomes.outcome_id),
+    health_outcomes.avg_improvement AS AVG(health_outcomes.improvement_percentage),
+    health_outcomes.declining_outcomes AS COUNT_IF(health_outcomes.improvement_percentage < 0)
   )
-  COMMENT = 'Semantic view for value-based care performance, quality metrics, and provider performance';
+  COMMENT = 'Semantic view for value-based care performance, quality metrics, provider performance, and health outcomes';
 
 -- ============================================================================
 -- Confirmation
