@@ -15,7 +15,7 @@ USE WAREHOUSE HONORHEALTH_WH;
 -- ============================================================================
 -- Returns: Summary string with readmission risk distribution
 -- Input: encounter_type_filter (Inpatient Admission, Emergency Department, or NULL)
--- Analyzes 50 encounters
+-- Analyzes 25 encounters
 
 CREATE OR REPLACE FUNCTION PREDICT_READMISSION_RISK(encounter_type_filter VARCHAR)
 RETURNS VARCHAR
@@ -36,7 +36,7 @@ $$
             ) as pred
         FROM HONORHEALTH_INTELLIGENCE.ANALYTICS.V_READMISSION_RISK_FEATURES
         WHERE encounter_type_filter IS NULL OR encounter_type_risk = encounter_type_filter
-        LIMIT 50
+        LIMIT 25
     )
 $$;
 
@@ -45,7 +45,7 @@ $$;
 -- ============================================================================
 -- Returns: Summary string with health outcome predictions
 -- Input: risk_level_filter (Low Risk, Medium Risk, High Risk, or NULL)
--- Analyzes 50 patients
+-- Analyzes 25 patients
 
 CREATE OR REPLACE FUNCTION PREDICT_HEALTH_OUTCOMES(risk_level_filter VARCHAR)
 RETURNS VARCHAR
@@ -65,7 +65,7 @@ $$
                 baseline_value, prior_encounters, cumulative_cost, quality_score
             ) as pred
         FROM HONORHEALTH_INTELLIGENCE.ANALYTICS.V_HEALTH_OUTCOME_PREDICTION_FEATURES
-        LIMIT 50
+        LIMIT 25
     )
 $$;
 
@@ -74,7 +74,7 @@ $$;
 -- ============================================================================
 -- Returns: Summary string with social risk stratification
 -- Input: days_back (number of days to analyze, default 365)
--- Analyzes 50 patients
+-- Analyzes 25 patients
 
 CREATE OR REPLACE FUNCTION STRATIFY_SOCIAL_RISK(days_back NUMBER)
 RETURNS VARCHAR
@@ -95,7 +95,7 @@ $$
                 utility_need_flag, encounter_count, total_healthcare_cost
             ) as pred
         FROM HONORHEALTH_INTELLIGENCE.ANALYTICS.V_SOCIAL_RISK_STRATIFICATION_FEATURES
-        LIMIT 50
+        LIMIT 25
     )
 $$;
 
